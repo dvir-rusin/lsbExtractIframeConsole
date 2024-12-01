@@ -24,9 +24,9 @@ namespace lsbExtractIFramesProject
             }
             message += char.MinValue;
             Console.WriteLine(message);
-            string binaryMessage = lsbExtractIFramesProject.HelperFunctions.StringToBinary(message);
+            string binaryMessage = HelperFunctions.StringToBinary(message);
             Console.WriteLine("ORIGINAL binaryMessage: " + binaryMessage);
-            Console.WriteLine("Message : " + lsbExtractIFramesProject.HelperFunctions.BinaryToString(binaryMessage));
+            Console.WriteLine("Message : " + HelperFunctions.BinaryToString(binaryMessage));
 
             string binaryLength = Convert.ToString(binaryMessage.Length, 2).PadLeft(12, '0');
             Console.WriteLine("Binary Length: " + binaryLength);
@@ -46,15 +46,15 @@ namespace lsbExtractIFramesProject
 
                             int r = pixelColor.R, g = pixelColor.G, b = pixelColor.B;
 
-                                r = EmbedBitInColorChannel(r, binaryMessage, ref messageIndex);
-                                g = EmbedBitInColorChannel(g, binaryMessage, ref messageIndex);
-                                b = EmbedBitInColorChannel(b, binaryMessage, ref messageIndex);
+                            r = EmbedBitInColorChannel(r, binaryMessage, ref messageIndex);
+                            g = EmbedBitInColorChannel(g, binaryMessage, ref messageIndex);
+                            b = EmbedBitInColorChannel(b, binaryMessage, ref messageIndex);
 
-                                if (messageIndex >= binaryMessage.Length)
-                                {
-                                    messageComplete = true;
-                                }
-                            
+                            if (messageIndex >= binaryMessage.Length)
+                            {
+                                messageComplete = true;
+                            }
+
                             bitmap.SetPixel(x, y, Color.FromArgb(r, g, b));
                         }
                     }
@@ -77,7 +77,7 @@ namespace lsbExtractIFramesProject
             {
                 // Get the bit to embed (0 or 1)
                 int bit = binaryMessage[messageIndex] == '1' ? 1 : 0;
-                
+
 
                 // Embed the bit in the LSB
                 colorChannelValue = (colorChannelValue & 0xFE) | bit;
@@ -87,6 +87,60 @@ namespace lsbExtractIFramesProject
             }
 
             return colorChannelValue;
+        }
+
+        public static Bitmap EmbedMessageInFrameTest(Bitmap frame,string message)
+        {
+
+            message += char.MinValue;
+            Console.WriteLine(message);
+            string binaryMessage = HelperFunctions.StringToBinary(message);
+            Console.WriteLine("ORIGINAL binaryMessage: " + binaryMessage);
+            Console.WriteLine("Message : " + HelperFunctions.BinaryToString(binaryMessage));
+
+            string binaryLength = Convert.ToString(binaryMessage.Length, 2).PadLeft(12, '0');
+            Console.WriteLine("Binary Length: " + binaryLength);
+
+            bool messageComplete = false;
+            int messageIndex = 0;
+
+
+
+            using (Bitmap bitmap = new Bitmap(frame))
+            {
+                for (int y = 0; y < bitmap.Height && !messageComplete; y++)
+                {
+                    for (int x = 0; x < bitmap.Width && !messageComplete; x++)
+                    {
+                        Color pixelColor = bitmap.GetPixel(x, y);
+
+                        int r = pixelColor.R, g = pixelColor.G, b = pixelColor.B;
+
+                        r = EmbedBitInColorChannel(r, binaryMessage, ref messageIndex);
+                        g = EmbedBitInColorChannel(g, binaryMessage, ref messageIndex);
+                        b = EmbedBitInColorChannel(b, binaryMessage, ref messageIndex);
+
+                        if (messageIndex >= binaryMessage.Length)
+                        {
+                            messageComplete = true;
+                        }
+
+                        bitmap.SetPixel(x, y, Color.FromArgb(r, g, b));
+                    }
+                }
+
+
+
+                if (messageComplete)
+                {
+                    Console.WriteLine("Message embedded in frame.");
+                    return frame;
+
+                }
+
+
+            }
+            return frame;
         }
     }
 }
