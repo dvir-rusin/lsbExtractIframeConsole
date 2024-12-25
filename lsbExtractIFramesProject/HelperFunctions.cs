@@ -79,7 +79,9 @@ namespace lsbExtractIFramesProject
             string inputPattern = $"{framesPath}\\frame_%04d.png"; // Adjust for the frame naming format (e.g., frame_0001.png)
 
             // FFmpeg command to reconstruct and compress video
-            string arguments = $"-framerate {frameRate} -i \"{inputPattern}\" -c:v ffv1 -pix_fmt rgb24 \"{outputFilePath}\"";
+            string arguments = $"-framerate {frameRate} -i \"{inputPattern}\" -c:v libx264  -qp 0 -preset ultrafast -an \"{outputFilePath}\"";
+
+
 
             try
             {

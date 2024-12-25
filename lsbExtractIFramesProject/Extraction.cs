@@ -180,6 +180,27 @@ namespace lsbExtractIFramesProject
             
         }
 
+
+        public static void GetPixelColor(string filePath)
+        {
+            foreach (string file in Directory.GetFiles(filePath, "*.png"))
+            {
+                Bitmap frameBitmap = new Bitmap(file);
+                using (frameBitmap)
+                {
+                    
+                    for (int i = 1; i < 5; i++)
+                    {
+                        
+                        Console.WriteLine(frameBitmap.GetPixel(frameBitmap.Width - i, frameBitmap.Height - i));
+                    }
+                }
+            }
+            
+            
+           
+        }
+
         private static bool NullCheck(string HiddenMsg, int messageBitsExtracted)
         {
             
