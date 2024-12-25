@@ -15,18 +15,39 @@ using CsvHelper.Configuration;
 
 namespace lsbExtractIFramesProject
 {
-    public class CsvRow
-    {
-        public string Frame { get; set; }
-        public string Type { get; set; }
-    }
+    
     internal class Extraction
     {
         // Example usage of the ExtractIFrames function
         //string inputFilePath = "C:/Users/user 2017/Videos/WireShark/ArcVideo_clip.ts";
         //string outputDirectory = "C:/Users/user 2017/Videos/WireShark/LSBextractedFrames";
 
-        
+        public static async Task ExtractAllFrames(string videoFilePath, string outputDirectory)
+        {
+            // Set the FFmpeg path if not already set
+            FFmpeg.SetExecutablesPath("C:/ffmpeg/bin"); // Change to your FFmpeg path
+
+            // Define the output pattern for frame images
+            if(!Directory.Exists(outputDirectory))
+            {
+                Directory.CreateDirectory(outputDirectory);
+            }
+            string outputPattern = Path.Combine(outputDirectory, "frame_%04d.png");
+
+            // Create the conversion with input and output
+            var conversion = FFmpeg.Conversions.New()
+               .AddParameter($"-i \"{videoFilePath}\"") // Input file path
+               .AddParameter(" -vf fps=30") // Extract 30 frame per second (adjust as needed
+               .AddParameter("-vsync vfr")  // Avoid duplicate frames
+               .SetOutput(outputPattern);
+
+            Console.WriteLine("Extracting all frames...");
+
+            // Execute the conversion
+            await conversion.Start();
+
+            Console.WriteLine("All frames have been extracted and saved to the output directory.");
+        }
 
         public static async Task ExtractIFrames(string videoFilePath, string outputDirectory)
         {
@@ -51,70 +72,71 @@ namespace lsbExtractIFramesProject
             Console.WriteLine("All I-frames have been extracted and saved to the output directory.");
         }
 
-        public static void ExtractMessageFromFrames(string frameDirectory)
+        public static void ExtractMessageFromIFrames(string IframeDirectory)
         {
+            Console.WriteLine("meow");
             Console.WriteLine("");
             Console.WriteLine("Extracting message from frames...");
             // Get the first image to read the message length
-            string firstFramePath = Directory.GetFiles(frameDirectory, "*.png").FirstOrDefault();
+            string firstFramePath = Directory.GetFiles(IframeDirectory, "*.png").FirstOrDefault();
             if (firstFramePath == null)
             {
                 Console.WriteLine("No frames found in the directory.");
                 Console.WriteLine("-exiting-");
                 return;
             }
-           
 
-            foreach (string filePath in Directory.GetFiles(frameDirectory, "*.png"))
-            {
-                Bitmap frameBitmap = new Bitmap(filePath);
-                int msglen = GetMessageLength(frameBitmap);
-                
-            }
 
-            // Initialize to extract the message based on length
-            
-            foreach (string filePath in Directory.GetFiles(frameDirectory, "*.png"))
+            //foreach (string filePath in Directory.GetFiles(frameDirectory, "*.png"))
+            //{
+            //    Bitmap frameBitmap = new Bitmap(filePath);
+            //    int msglen = GetMessageLength(frameBitmap);
+
+            //}
+
+            //// Initialize to extract the message based on length
+
+            foreach (string filePath in Directory.GetFiles(IframeDirectory, "*.png"))
             {
                 Bitmap frameBitmap = new Bitmap(filePath);
                 using (frameBitmap)
                 {
-                    int messageLength = GetMessageLength(frameBitmap);
-                    Console.WriteLine("msglen:" + messageLength);
-                    string message =  GetHiddenMessage(frameBitmap, messageLength);
+                    //int messageLength = GetMessageLength(frameBitmap);
+                    //Console.WriteLine("msglen:" + messageLength);
+                    string message = GetHiddenMessage(frameBitmap);
                     Console.WriteLine("Hidden Message: " + message);
                 }
             }
 
-         
+
         }
 
 
-        private static int GetMessageLength(Bitmap bitmap)
-        {
-            StringBuilder binaryLength = new StringBuilder();
-            int lengthBitsExtracted = 0;
-            Color pixelColor;
-            for (int i = 0;i<3;i++)  
-            {
-                pixelColor = bitmap.GetPixel(i, 0);
-                binaryLength.Append((pixelColor.R & 1) == 1 ? "1" : "0");
-                binaryLength.Append((pixelColor.G & 1) == 1 ? "1" : "0");
-                binaryLength.Append((pixelColor.B & 1) == 1 ? "1" : "0");
+        //private static int GetMessageLength(Bitmap bitmap)
+        //{
+        //    StringBuilder binaryLength = new StringBuilder();
+        //    int lengthBitsExtracted = 0;
+        //    Color pixelColor;
+        //    for (int i = 0;i<3;i++)  
+        //    {
+        //        pixelColor = bitmap.GetPixel(i, 0);
+        //        binaryLength.Append((pixelColor.R & 1) == 1 ? "1" : "0");
+        //        binaryLength.Append((pixelColor.G & 1) == 1 ? "1" : "0");
+        //        binaryLength.Append((pixelColor.B & 1) == 1 ? "1" : "0");
 
-                lengthBitsExtracted += 3;
-            }
-            return Convert.ToInt32(binaryLength.ToString(), 2);
-        }
+        //        lengthBitsExtracted += 3;
+        //    }
+        //    return Convert.ToInt32(binaryLength.ToString(), 2);
+        //}
 
-        private static string GetHiddenMessage(Bitmap frameBitmap, int messageLength)
+        private static string GetHiddenMessage(Bitmap frameBitmap)
         {
             StringBuilder binaryMessage = new StringBuilder();
             int messageBitsExtracted = 0;
             Color pixelColor;
             string HiddenMsg;
-            // Start reading from the 5th pixel (index 4) for the actual message
-            for (int i = 0; i < frameBitmap.Width * frameBitmap.Height && messageBitsExtracted < messageLength; i++)
+            
+            for (int i = 0; i < frameBitmap.Width * frameBitmap.Height; i++)
             {
                 int x = i % frameBitmap.Width;
                 int y = i / frameBitmap.Width;
@@ -122,20 +144,20 @@ namespace lsbExtractIFramesProject
                 // Extract the LSB from each color channel
                 binaryMessage.Append((pixelColor.R & 1) == 1 ? "1" : "0");
                 messageBitsExtracted++;
-                if(messageBitsExtracted%8==0)
+                if (messageBitsExtracted % 8 == 0)
                 {
-                    HiddenMsg = lsbExtractIFramesProject.HelperFunctions.BinaryToString(binaryMessage.ToString());
+                    HiddenMsg = HelperFunctions.BinaryToString(binaryMessage.ToString());
                     if (NullCheck(HiddenMsg, messageBitsExtracted) == true)
                         break;
                 }
-                    
+
 
 
                 binaryMessage.Append((pixelColor.G & 1) == 1 ? "1" : "0");
                 messageBitsExtracted++;
                 if (messageBitsExtracted % 8 == 0)
                 {
-                    HiddenMsg = lsbExtractIFramesProject.HelperFunctions.BinaryToString(binaryMessage.ToString());
+                    HiddenMsg = HelperFunctions.BinaryToString(binaryMessage.ToString());
                     if (NullCheck(HiddenMsg, messageBitsExtracted) == true)
                         break;
                 }
@@ -144,14 +166,14 @@ namespace lsbExtractIFramesProject
                 messageBitsExtracted++;
                 if (messageBitsExtracted % 8 == 0)
                 {
-                    HiddenMsg = lsbExtractIFramesProject.HelperFunctions.BinaryToString(binaryMessage.ToString());
+                    HiddenMsg = HelperFunctions.BinaryToString(binaryMessage.ToString());
                     if (NullCheck(HiddenMsg, messageBitsExtracted) == true)
                         break;
                 }
 
             }
             Console.WriteLine("Binary Message: " + binaryMessage);
-            HiddenMsg = lsbExtractIFramesProject.HelperFunctions.BinaryToString(binaryMessage.ToString());
+            HiddenMsg = HelperFunctions.BinaryToString(binaryMessage.ToString());
             return HiddenMsg;
             //string extractedMessage = lsbExtractIFramesProject.HelperFunctions.BinaryToString(binaryMessage.ToString());
             //Console.WriteLine($"Extracted Message: {extractedMessage}");
@@ -185,9 +207,6 @@ namespace lsbExtractIFramesProject
             Console.WriteLine($"Frame metadata saved to {metadataFile}");
         }
 
-
-
-
         private static async Task RunCommand(string command)
         {
             var processStartInfo = new ProcessStartInfo("cmd", "/C " + command)
@@ -214,73 +233,12 @@ namespace lsbExtractIFramesProject
             }
         }
 
-        public static async Task ProcessAndSaveIFrames(string inputVideoPath, string outputVideoPath, string message)
-        {
-            // Set FFmpeg path
-            FFmpeg.SetExecutablesPath("C:/ffmpeg/bin");
-            int count = 0;
 
-            Console.WriteLine("Processing frames...");
-
-            // FFmpeg command to extract frames as a pipe
-            var ffmpegInputArgs = $"-i \"{inputVideoPath}\" -vf \"showinfo\" -f image2pipe -vcodec png -";
-            var ffmpegOutputArgs = $"-y -f image2pipe -vcodec png -i pipe: -c:v libx264 \"{outputVideoPath}\"";
-
-            // Start FFmpeg process
-            var processStartInfo = new ProcessStartInfo
-            {
-                FileName = "cmd",
-                Arguments = $"/C ffmpeg {ffmpegInputArgs} | ffmpeg {ffmpegOutputArgs}",
-                RedirectStandardInput = true,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
-
-            using var process = Process.Start(processStartInfo);
-            using var inputPipe = process.StandardOutput.BaseStream;
-            using var outputPipe = process.StandardInput.BaseStream;
-            
-
-            // Process each frame
-            while (true)
-            {
-                try
-                {
-                    // Read the current frame as a Bitmap
-                    Bitmap frame = new Bitmap(inputPipe);
-                    count++;
-                    Console.WriteLine("Frame: " + count);
-                    // Check if it's an I-frame (you may use metadata or FFmpeg filters)
-                    if (IsIFrame(frame)) // Implement your own logic to identify I-frames
-                    {
-                        // Modify the frame
-                        Bitmap modifiedFrame = Embedding.EmbedMessageInFrameTest(frame, message);
-
-                        // Write the modified frame back to FFmpeg
-                        modifiedFrame.Save(outputPipe, System.Drawing.Imaging.ImageFormat.Png);
-                    }
-                    else
-                    {
-                        // Write the original frame back to FFmpeg
-                        frame.Save(outputPipe, System.Drawing.Imaging.ImageFormat.Png);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("Frame processing completed or encountered an error: " + ex.Message);
-                    break;
-                }
-            }
-
-            await process.WaitForExitAsync();
-            Console.WriteLine("Video processing complete.");
-        }
         private static bool IsIFrame(Bitmap frame)
         {
             // Use metadata from FFmpeg or pixel properties to detect if the frame is an I-frame
             // For now, this is a placeholder returning `true` for demonstration
+
             return true; // Replace with actual detection logic
         }
 
@@ -303,9 +261,14 @@ namespace lsbExtractIFramesProject
                         // Each line should correspond to a frame's pict_type
                         string frameType = lines[i].Trim();
 
-                        // Check if the frame type is "I"
-                        if (frameType == "I,")
+                        // Check if the frame type is "I"  or "I," (for CSV format)
+                        if (frameType == "I," )
                         {
+                            // Add the frame number to the array (1-based indexing)
+                            iFrameLocations.Add(i + 1);
+                        }
+                        else if (frameType == "I")
+                        {  
                             // Add the frame number to the array (1-based indexing)
                             iFrameLocations.Add(i + 1);
                         }
@@ -335,13 +298,6 @@ namespace lsbExtractIFramesProject
 
             return iFrameLocations.ToArray();
         }
-
-
-
-
-
-
-
 
 
     }
