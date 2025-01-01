@@ -34,22 +34,44 @@ namespace lsbExtractIFramesProject
 
             Console.WriteLine("Starting FunctionTesting...");
 
+            //extract i frames from a video
+            //await HelperFunctions.ExtractIFrames(inputFilePath, LSBallFrames);
+
+            //test if i frame folder has the message
+            //await HelperFunctions.ExtractMessageFromIFrames(test7SecframeWithMessage, outputAll7secFramesWithMessageRedTest, message);
+
+            //extract all frames from a video
+            //await HelperFunctions.ExtractAllFrames(input7secfile, outputAll7secFrames);
+
+
+
+        }
+        public static void EncryptionAesTesting()
+        {
+            Console.WriteLine("Enter text to encrypt:");
+            string text = Console.ReadLine(); // Read the plaintext input from the user
+
+            string customKey = EncryptionAes.GetUserCustomKey(); // Get the user-provided custom key
+
+            string encrypted = EncryptionAes.Encrypt(text, customKey); // Encrypt the plaintext using the custom key
+            Console.WriteLine($"Encrypted Text: {encrypted}");
+
+            Console.WriteLine("\nEnter the custom key to decrypt:");
+            string inputKey = Console.ReadLine(); // Read the custom key from the user for decryption
+
             try
             {
-                
-
+                // Attempt to decrypt the ciphertext with the user-provided key
+                string decrypted = EncryptionAes.Decrypt(encrypted, inputKey);
+                Console.WriteLine($"Decrypted Text: {decrypted}");
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine($"An error occurred during testing: {ex.Message}");
+                // Handle decryption failure (e.g., incorrect custom key)
+                Console.WriteLine("Decryption failed. Check your custom key.");
             }
-
-            Console.WriteLine("FunctionTesting completed.");
         }
 
-        public static async Task Main2()
-        {
-            await RunTests();
-        }
+        
     }
 }

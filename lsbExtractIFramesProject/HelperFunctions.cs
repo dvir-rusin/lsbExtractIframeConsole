@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using static Emgu.CV.DISOpticalFlow;
+using Xabe.FFmpeg;
 
 namespace lsbExtractIFramesProject
 {
@@ -79,8 +81,9 @@ namespace lsbExtractIFramesProject
             string inputPattern = $"{framesPath}\\frame_%04d.png"; // Adjust for the frame naming format (e.g., frame_0001.png)
 
             // FFmpeg command to reconstruct and compress video
-            string arguments = $"-framerate {frameRate} -i \"{inputPattern}\" -c:v libx264  -qp 0 -preset ultrafast -an \"{outputFilePath}\"";
-
+            //string arguments = $"-framerate {frameRate} -i \"{inputPattern}\" -c:v libx264  -qp 0 -preset ultrafast -an -x264-params \"intra-refresh=0:intra-block-copy=1\" \"{outputFilePath}\"";
+            string arguments = $"-framerate {frameRate} -i \"{inputPattern}\" -c:v ffv1 \"{outputFilePath}\"";
+            
 
 
             try
