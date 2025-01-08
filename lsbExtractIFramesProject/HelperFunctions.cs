@@ -82,8 +82,11 @@ namespace lsbExtractIFramesProject
 
             // FFmpeg command to reconstruct and compress video
             //string arguments = $"-framerate {frameRate} -i \"{inputPattern}\" -c:v libx264  -qp 0 -preset ultrafast -an -x264-params \"intra-refresh=0:intra-block-copy=1\" \"{outputFilePath}\"";
-            string arguments = $"-framerate {frameRate} -i \"{inputPattern}\" -c:v ffv1 \"{outputFilePath}\"";
-            
+            //string arguments = $"-framerate {frameRate} -i \"{inputPattern}\" -c:v ffv1 \"{outputFilePath}\"";
+            //"/C ffmpeg -i C:\\VideoSteganography\\allCombinedFrames\\%06d.bmp -pix_fmt bgr24 -c:v libx264rgb -preset veryslow -qp 0 C:\\VideoSteganography\\stegovideo.avi";
+            //string arguments = $"-framerate {frameRate} -i \"{inputPattern}\" -c:v copy \"{outputFilePath}\"";
+            string arguments = $"-framerate {frameRate} -i \"{inputPattern}\" -pix_fmt bgr24 -c:v libx264rgb -preset veryfast -qp 0 \"{outputFilePath}\"";
+
 
 
             try

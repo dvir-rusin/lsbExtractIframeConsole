@@ -11,65 +11,7 @@ namespace lsbExtractIFramesProject
     internal class Embedding
     {
 
-       
-
-
-        public static void EmbedMessageInFrames(string frameDirectory, string message)
-        {
-            string LSBextractedFramesOutputDirectory = "C:/Users/user 2017/Videos/WireShark/reconstructed_video_7sec_Iframes4";
-
-            if (!Directory.Exists(LSBextractedFramesOutputDirectory))
-            {
-                Console.WriteLine("EmbedMessageInFrames function message : the directory of i frames does not exist ");
-                return;
-            }
-            message += char.MinValue;
-            Console.WriteLine(message);
-            string binaryMessage = HelperFunctions.StringToBinary(message);
-            Console.WriteLine("ORIGINAL binaryMessage: " + binaryMessage);
-            Console.WriteLine("Message : " + HelperFunctions.BinaryToString(binaryMessage));
-
-            string binaryLength = Convert.ToString(binaryMessage.Length, 2).PadLeft(12, '0');
-            Console.WriteLine("Binary Length: " + binaryLength);
-
-            bool messageComplete = false;
-            int messageIndex = 0;
-
-            foreach (string filePath in Directory.GetFiles(frameDirectory, "*.png"))
-            {
-                using (Bitmap bitmap = new Bitmap(filePath))
-                {
-                    for (int y = 0; y < bitmap.Height && !messageComplete; y++)
-                    {
-                        for (int x = 0; x < bitmap.Width && !messageComplete; x++)
-                        {
-                            Color pixelColor = bitmap.GetPixel(x, y);
-
-                            int r = pixelColor.R, g = pixelColor.G, b = pixelColor.B;
-
-                            r = EmbedBitInColorChannel(r, binaryMessage, ref messageIndex);
-                            g = EmbedBitInColorChannel(g, binaryMessage, ref messageIndex);
-                            b = EmbedBitInColorChannel(b, binaryMessage, ref messageIndex);
-
-                            if (messageIndex >= binaryMessage.Length)
-                            {
-                                messageComplete = true;
-                            }
-
-                            bitmap.SetPixel(x, y, Color.FromArgb(r, g, b));
-                        }
-                    }
-                  
-
-                    string outputFilePath = Path.Combine(LSBextractedFramesOutputDirectory, Path.GetFileName(filePath));
-                    bitmap.Save(outputFilePath, System.Drawing.Imaging.ImageFormat.Png);
-
-                    if (messageComplete) break; // Stop for only checking the first frame break will be removed later on
-                }
-            }
-
-            Console.WriteLine("Message embedded in all frames.");
-        }
+        
 
         public static void EmbedMessageInFramesRedTest(string frameDirectory, string message)
         {
@@ -142,22 +84,28 @@ namespace lsbExtractIFramesProject
         public static void EmbedMessageInFramesTestInVideo
             (string inputframesDirectory,
             string outputframesDirectrory,
-            string message,int[] IframesLocation)
+            int[] IframesLocation)
         {
-            
+            Console.WriteLine("Enter text to encrypt:");
+            string UserInputMessage = Console.ReadLine(); // Read the plaintext input from the user
+
+            string UserPassword = EncryptionAes.GetUserCustomKey(); // Get the user-provided custom key
+
+            string EncryptedMessage = EncryptionAes.Encrypt(UserInputMessage, UserPassword); // Encrypt the plaintext using the custom key
+            Console.WriteLine($"Encrypted Text: {EncryptedMessage}");
 
             if (!Directory.Exists(inputframesDirectory))
             {
                 Console.WriteLine("EmbedMessageInFramesTestInVideo function message : inputframesDirectory does not exist ");
                 return;
             }
-            message += char.MinValue;
-            Console.WriteLine(message);
-            string binaryMessage = HelperFunctions.StringToBinary(message);
-            Console.WriteLine("ORIGINAL binaryMessage: " + binaryMessage);
-            Console.WriteLine("Message : " + HelperFunctions.BinaryToString(binaryMessage));
+            EncryptedMessage += char.MinValue;
+            Console.WriteLine(EncryptedMessage);
+            string binaryEncryptedMessage = HelperFunctions.StringToBinary(EncryptedMessage);
+            Console.WriteLine("ORIGINAL binaryMessage: " + binaryEncryptedMessage);
+            Console.WriteLine("Message : " + HelperFunctions.BinaryToString(binaryEncryptedMessage));
 
-            string binaryLength = Convert.ToString(binaryMessage.Length, 2).PadLeft(12, '0');
+            string binaryLength = Convert.ToString(binaryEncryptedMessage.Length, 2).PadLeft(12, '0');
             Console.WriteLine("Binary Length: " + binaryLength);
             int indexer = 0;
 
@@ -194,11 +142,11 @@ namespace lsbExtractIFramesProject
 
                                 int r = pixelColor.R, g = pixelColor.G, b = pixelColor.B;
 
-                                r = EmbedBitInColorChannel(r, binaryMessage, ref messageIndex);
-                                g = EmbedBitInColorChannel(g, binaryMessage, ref messageIndex);
-                                b = EmbedBitInColorChannel(b, binaryMessage, ref messageIndex);
+                                r = EmbedBitInColorChannel(r, binaryEncryptedMessage, ref messageIndex);
+                                g = EmbedBitInColorChannel(g, binaryEncryptedMessage, ref messageIndex);
+                                b = EmbedBitInColorChannel(b, binaryEncryptedMessage, ref messageIndex);
 
-                                if (messageIndex >= binaryMessage.Length)
+                                if (messageIndex >= binaryEncryptedMessage.Length)
                                 {
                                     messageComplete = true;
 

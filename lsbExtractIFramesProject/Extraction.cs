@@ -134,7 +134,7 @@ namespace lsbExtractIFramesProject
             StringBuilder binaryMessage = new StringBuilder();
             int messageBitsExtracted = 0;
             Color pixelColor;
-            string HiddenMsg;
+            string HiddenMsg="null";
             
             for (int i = 0; i < frameBitmap.Width * frameBitmap.Height; i++)
             {
@@ -148,7 +148,11 @@ namespace lsbExtractIFramesProject
                 {
                     HiddenMsg = HelperFunctions.BinaryToString(binaryMessage.ToString());
                     if (NullCheck(HiddenMsg, messageBitsExtracted) == true)
+                    {
+                        HiddenMsg = HiddenMsg.Remove(HiddenMsg.Length - 1);
                         break;
+                    }
+                        
                 }
 
 
@@ -159,7 +163,11 @@ namespace lsbExtractIFramesProject
                 {
                     HiddenMsg = HelperFunctions.BinaryToString(binaryMessage.ToString());
                     if (NullCheck(HiddenMsg, messageBitsExtracted) == true)
+                    {
+                        HiddenMsg = HiddenMsg.Remove(HiddenMsg.Length - 1);
                         break;
+                    }
+                       
                 }
 
                 binaryMessage.Append((pixelColor.B & 1) == 1 ? "1" : "0");
@@ -168,13 +176,35 @@ namespace lsbExtractIFramesProject
                 {
                     HiddenMsg = HelperFunctions.BinaryToString(binaryMessage.ToString());
                     if (NullCheck(HiddenMsg, messageBitsExtracted) == true)
+                    {
+                        HiddenMsg = HiddenMsg.Remove(HiddenMsg.Length - 1);
                         break;
+                    }
+                        
                 }
 
             }
+            //binary message still includes the /0 at the end the one that was removed from each hidden message if statement 
             Console.WriteLine("Binary Message: " + binaryMessage);
-            HiddenMsg = HelperFunctions.BinaryToString(binaryMessage.ToString());
-            return HiddenMsg;
+            //HiddenMsg = HelperFunctions.BinaryToString(binaryMessage.ToString());
+
+            Console.WriteLine("\nEnter the custom key to decrypt:");
+            string inputKey = Console.ReadLine(); // Read the custom key from the user for decryption
+            string decrypted = "null";
+            
+            try
+            {
+                // Attempt to decrypt the ciphertext with the user-provided key
+                decrypted = EncryptionAes.Decrypt(HiddenMsg, inputKey);
+                Console.WriteLine($"Decrypted Text: {decrypted}");
+            }
+            catch
+            {
+                // Handle decryption failure (e.g., incorrect custom key)
+                Console.WriteLine("Decryption failed. Check your custom key.");
+            }
+
+            return decrypted;
             //string extractedMessage = lsbExtractIFramesProject.HelperFunctions.BinaryToString(binaryMessage.ToString());
             //Console.WriteLine($"Extracted Message: {extractedMessage}");
             

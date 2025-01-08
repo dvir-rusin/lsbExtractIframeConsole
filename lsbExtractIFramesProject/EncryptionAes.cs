@@ -34,6 +34,7 @@ namespace lsbExtractIFramesProject
                 return sha256.ComputeHash(Encoding.UTF8.GetBytes(customCode));
             }
         }
+        
 
         /// <summary>
         /// Encrypts plaintext using AES encryption with a user-provided custom key.

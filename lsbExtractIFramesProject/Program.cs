@@ -20,6 +20,7 @@ public class Program
         string outputAll7secFramesbmp = "C:/Users/user 2017/Videos/WireShark/LSB7secAllFramesbmp";
 
         string outputAll7secFramesWithMessage = "C:/Users/user 2017/Videos/WireShark/LSB7secAllFramesWIthMessage";
+        string outputAll7secFramesWithEncryptedMessage = "C:/Users/user 2017/Videos/WireShark/LSB7secAllFramesWIthEncryptedMessage";
         string outputAll7secFramesWithMessageRedTest = "C:/Users/user 2017/Videos/WireShark/LSB7secOutputAllFramesWIthMessageRedTest";
         string test7SecframeWithMessage = "C:/Users/user 2017/Videos/WireShark/LSB7secTestwithIframe";
 
@@ -31,6 +32,9 @@ public class Program
         string LSBallExtractedFramesOutputTest = "C:/Users/user 2017/Videos/WireShark/LSBallextractedFramesTest";
 
         string reconstructed_video_7sec_withMessageMKV = "C:/Users/user 2017/Videos/WireShark/reconstructed_video_7sec_withMessageLossless11.mkv";
+        string reconstructed_video_7sec_withMessageRawMp4 = "C:/Users/user 2017/Videos/WireShark/reconstructed_video_7sec_withMessageRawMp4.mp4";
+        string reconstructed_video_7sec_withMessageAvi = "C:/Users/user 2017/Videos/WireShark/reconstructed_video_7sec_withMessageLosslessAviVeryFast.avi";
+        string aviIframes = "C:/Users/user 2017/Videos/WireShark/AviiFrames";
         string mkvIframes = "C:/Users/user 2017/Videos/WireShark/MKViFrames";
 
         string reconstructed_video_7sec_withMessageRed = "C:/Users/user 2017/Videos/WireShark/reconstructed_video_7sec_withMessageLosslessRed3.ts";
@@ -49,31 +53,31 @@ public class Program
         string metaData7secfile = "C:/Users/user 2017/Videos/WireShark/7secfile_metadata.csv";
         //Console.WriteLine("Starting I-frame extraction and embedding...");
 
-        //testing red pixels after compression
-        //int[] iFrameLocations = await Extraction.GetIFrameLocations(metaData7secfile);
-        //Embedding.EmbedMessageInFramesTestInVideo(outputAll7secFrames, outputAll7secFramesWithMessageRedTest, message, iFrameLocations);
-        //HelperFunctions.ReconstructVideo(outputAll7secFramesWithMessage, reconstructed_video_7sec_withMessageMKV, 30);
-        //await Extraction.ExtractIFrames(reconstructed_video_outputTsTest_ts, reconstructed_video_outputTsTestIframes_ts);
 
-        //Extraction.GetPixelColor(reconstructed_video_7sec_IframeWithMessageRed);
 
-        //FunctionTesting.Main2();
+
         //try
         //{
+
+        //extrcat all frames from a video
         //await Extraction.ExtractAllFrames(input7secfile, outputAll7secFrames);
 
+        //extract frames meta data for message embedding 
         //Extraction.ExtractFrameMetadata(input7secfile, metaData7secfile);
+
+        //embed message in i frames based on the extracted meta data
         //int[] iFrameLocations = await Extraction.GetIFrameLocations(metaData7secfile);
-        //Embedding.EmbedMessageInFramesTestInVideo(outputAll7secFrames, outputAll7secFramesWithMessage, message, iFrameLocations);
-        //HelperFunctions.ReconstructVideo(outputAll7secFramesWithMessage, reconstructed_video_7sec_withMessageMKV, 30);
-        //await Extraction.ExtractIFrames(reconstructed_video_7sec_withMessageMKV, mkvIframes);
-        //Embedding.EmbedMessageInFrames(outputDirectory, message);//the output of ExtractIFrames becomes the input
+        //Embedding.EmbedMessageInFramesTestInVideo(outputAll7secFrames, outputAll7secFramesWithEncryptedMessage, iFrameLocations);
+        //Embedding.EmbedMessageInFramesTestInVideo(outputAll7secFrames, outputAll7secFramesWithEncryptedMessage, iFrameLocations);
+        //reconstruct video from frames with message
+        //HelperFunctions.ReconstructVideo(outputAll7secFramesWithEncryptedMessage, reconstructed_video_7sec_withMessageAvi, 30);
 
-        //Console.WriteLine("I-frame extraction and embedding completed successfully.");
-        Extraction.ExtractMessageFromIFrames(mkvIframes);
-        //await Extraction.ExtractFrameMetadata(reconstructed_video_7sec_withMessage, metaData7secfileReconstructed);
+        //extract i frames from the reconstructed video
+        //await Extraction.ExtractIFrames(reconstructed_video_7sec_withMessageAvi, aviIframes);
 
 
+        //extract message from all i frames from reconstructed video
+        Extraction.ExtractMessageFromIFrames(aviIframes);
 
         //}
         //catch (Exception ex)
@@ -87,7 +91,11 @@ public class Program
         //Console.WriteLine($"Array of I-Frame locations: {string.Join(", ", iFrameLocations)}");
 
 
+        // encryption testing 
         //FunctionTesting.EncryptionAesTesting();
+
+        //testing everything together
+        //FunctionTesting.testing_EmbeddingAndExtractionFully();
 
     }
 
